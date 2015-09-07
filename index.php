@@ -1,9 +1,8 @@
 <?php
-    require_once "src/ImapxPHP.php";
+    require_once "src/imapxPHP.php";
 
     $imap=new Imapx;
 
-    $mail=$imap->getInbox();
-
-    var_dump($mail);
+    $msg=$imap->readMail(7);
+    echo $msg->getSenderLink();
  ?>

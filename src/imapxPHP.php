@@ -1,19 +1,24 @@
-<?php namespace Nahidz\Imapx;
-
+<?php
 /*
-	This library is for laravel 5. If you using laravel 5 then 
-	run this command in your terminal
+	This file is written with pure PHP code. so you can use it anywhere in your php project.
 
-	"composer require nahidz/imapx"
 */
 class Imapx
 {
-	private $driver;
-	private $hostname;
-	private $username;
-	private $password;
-	private $ssl;
-	private $novalidate;
+	/*
+		Here is all configurations that used in the library
+	*/
+	private $driver			=	'imap';  // here is the driver. you can use pop3 also
+	private $hostname		=	'imap.gmail.com'; // here is your host name, 
+	private $username		=	'your-username@gmail.com'; // your server username ex: john@gmail.com
+	private $password		=	'your-password';
+	private $ssl			=	true; // If you use false then the server ignore ssl
+	private $novalidate		=	false; // If novalidate true then your server use own validate certificate
+	/*
+		end configurations
+	*/
+
+
 
 
 	protected $isConnect		= 	false;
@@ -40,20 +45,35 @@ class Imapx
 
 	function __construct()
 	{
-		$this->driver=config('imapx.driver');
-		$this->hostname=config('imapx.host');
-		$this->username=config('imapx.username');
-		$this->password=config('imapx.password');
-		$this->port=':'.config('imapx.port');
-		$this->ssl=config('imapx.ssl')?'/ssl':'';
-		$this->novalidate=config('imapx.novalidate')?'/novalidate-cert':'';
-
-
-		if(config('imapx.auto-connect')){
+		
 
 			$this->connect();
 
-		}
+	}
+
+
+	/*
+	* connect to mail server using there credentials
+	*/
+	function connect($host=null, $driver=null, $user=null, $password=null, $port=null, $ssl=null, $novalidate=null)
+	{
+		$this->hostname 	=	is_null($host)?$this->hostname:$host;
+		$this->driver 		=	is_null($driver)?$this->driver:$driver;
+		$this->username 	=	is_null($user)?$this->username:$user;
+		$this->password 	=	is_null($password)?$this->password:$password;
+		$this->port 		=	is_null($port)?$this->port:$port;
+		$this->ssl 			=	is_null($ssl)?$this->ssl:$ssl;
+		$this->novalidate 	=	is_null($novalidate)?$this->novalidate:$novalidate;
+
+		$this->ssl 			=	$this->ssl?'/ssl':'';
+		$this->novalidate 	=	$this->novalidate?'/novalidate-cert':'';
+
+
+		$this->stream=imap_open('{'.$this->hostname.$this->port.'/'.$this->driver.$this->ssl.$this->novalidate.'}INBOX',$this->username,$this->password) or die('Cannot connect to Server: ' . imap_last_error());
+
+
+		if($this->stream)
+			$this->isConnect = true;
 	}
 
 	/*
