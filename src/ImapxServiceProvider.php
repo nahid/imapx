@@ -26,6 +26,9 @@ class ImapxServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->make('Nahidz\Imapx\Imapx');
+        $this->mergeConfigFrom(
+       __DIR__.'/config/imapx.php', 'imapx'
+        );
     }
 
     public function provides()
