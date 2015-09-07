@@ -43,8 +43,11 @@ class Imapx
 		$this->novalidate=config('imapx.novalidate')?'/novalidate-cert':'';
 
 
+		if(config('imapx.auto-connect')){
 
-		$this->connect();
+			$this->connect();
+
+		}
 	}
 
 

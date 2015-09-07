@@ -4,18 +4,21 @@ return [
     'host'          =>      'imap.gmail.com',
 
 
-    'username'      =>      'nahid.dns@gmail.com',
+    'username'      =>      'yourdomain@gmail.com',
 
-    'password'      =>      'hooga@420',
+    'password'      =>      'your-password',
 
 
     'port'          =>      993,
 
 
-    'driver'        =>      'imap',
-    
+    'driver'        =>      'imap', //driver imap or pop3
+
     'ssl'			=>		true,
-    
-    
-    'novalidate'	 =>  false;
+
+
+    'novalidate'	 =>  false,
+
+
+    'auto-connect'  => false
 ];
