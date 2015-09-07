@@ -4,6 +4,7 @@ IMAPX is a library for reading email from server using the IMAP or POP3 protocol
 See full Documentation [click here](http://nahid.co/diary/read/8)
 
 ## Author
-*** Nahid Bin Azhar ***
+**Nahid Bin Azhar**
+
 Url: http://nahid.co
 
