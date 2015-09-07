@@ -56,9 +56,6 @@ class Imapx
 	*/
 	function connect()
 	{
-
-	$ssl = $
-
 		$this->stream=imap_open('{'.$this->hostname.$this->port.'/'.$this->driver.$this->ssl.$this->novalidate.'}INBOX',$this->username,$this->password) or die('Cannot connect to Server: ' . imap_last_error());
 
 
@@ -188,7 +185,10 @@ class Imapx
 
 	function __destruct()
 	{
-		$this->close();
+		if($this->isConnect){
+
+			$this->close();
+		}
 	}
 
 }
