@@ -39,11 +39,10 @@ class Imapx
 		$this->username=config('imapx.username');
 		$this->password=config('imapx.password');
 		$this->port=':'.config('imapx.port');
-		$this->ssl=config('imapx.ssl');
-		$this->novalidate=config('imapx.novalidate');
-		
-		$ssl=$this->ssl?'/ssl':'';
-		$novalidate=$this->novalidate?'/novalidate-cert':'';
+		$this->ssl=config('imapx.ssl')?'/ssl':'';
+		$this->novalidate=config('imapx.novalidate')?'/novalidate-cert':'';
+
+
 
 		$this->connect();
 	}
@@ -54,10 +53,10 @@ class Imapx
 	*/
 	function connect()
 	{
-	
+
 	$ssl = $
-		
-		$this->stream=imap_open('{'.$this->hostname.$this->port.'/'.$this->driver.$ssl.$novalidate.'}INBOX',$this->username,$this->password) or die('Cannot connect to Server: ' . imap_last_error());
+
+		$this->stream=imap_open('{'.$this->hostname.$this->port.'/'.$this->driver.$this->ssl.$this->novalidate.'}INBOX',$this->username,$this->password) or die('Cannot connect to Server: ' . imap_last_error());
 
 
 		if($this->stream)
