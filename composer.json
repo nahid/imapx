@@ -1,15 +1,11 @@
 {
-    "name": "nahid/imapx",
+    "name": "nahidz/imapx",
     "description": "ImapX is library for retriving email from server",
-    "keywords": ["imap", "pop3", "laravel-5", "email"],
-    "homepage": "https://github.com/nahidz/imapx",
-    "type": "library",
     "license": "MIT",
     "authors": [
         {
             "name": "Nahid Bin Azhar",
-            "email": "nahid.dns@gmail.com",
-            "homepage": "http://nahid.co"
+            "email": "nahid.dns@gmail.com"
         }
     ],
     "minimum-stability": "dev",
@@ -21,7 +17,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Nahid\\Imapx\\": "src/"
+            "Nahidz\\Imapx\\": "src/"
         }
     },
     "extra": {
