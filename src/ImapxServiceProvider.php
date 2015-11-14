@@ -1,6 +1,6 @@
 <?php
 
-namespace Nahidz\Imapx;
+namespace Nahid\Imapx;
 
 use Illuminate\Support\ServiceProvider;
 

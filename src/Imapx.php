@@ -1,4 +1,4 @@
-<?php namespace Nahidz\Imapx;
+<?php namespace Nahid\Imapx;
 
 /*
 	This library is for laravel 5. If you using laravel 5 then 
@@ -54,6 +54,18 @@ class Imapx
 			$this->connect();
 
 		}
+	}
+
+/*
+	start connection 
+*/
+	function connect()
+	{
+		$this->stream=imap_open('{'.$this->hostname.$this->port.'/'.$this->driver.$this->ssl.$this->novalidate.'}INBOX',$this->username,$this->password) or die('Cannot connect to Server: ' . imap_last_error());
+
+
+		if($this->stream)
+			$this->isConnect = true;
 	}
 
 	/*

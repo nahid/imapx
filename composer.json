@@ -1,5 +1,5 @@
 {
-    "name": "nahidz/imapx",
+    "name": "nahid/imapx",
     "description": "ImapX is library for retriving email from server",
     "keywords": ["imap", "pop3", "laravel-5", "email"],
     "homepage": "https://github.com/nahidz/imapx",
@@ -21,7 +21,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Nahidz\\Imapx\\": "src/"
+            "Nahid\\Imapx\\": "src/"
         }
     },
     "extra": {
