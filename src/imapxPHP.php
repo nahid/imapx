@@ -10,8 +10,9 @@ class Imapx
 	*/
 	private $driver			=	'imap';  // here is the driver. you can use pop3 also
 	private $hostname		=	'imap.gmail.com'; // here is your host name, 
-	private $username		=	'your-username@gmail.com'; // your server username ex: john@gmail.com
-	private $password		=	'your-password';
+	private $username		=	'name@gmail.com'; // your server username ex: john@gmail.com
+	private $password		=	'your_pass';
+	private $port 			=   993;
 	private $ssl			=	true; // If you use false then the server ignore ssl
 	private $novalidate		=	false; // If novalidate true then your server use own validate certificate
 	/*
@@ -61,7 +62,7 @@ class Imapx
 		$this->driver 		=	is_null($driver)?$this->driver:$driver;
 		$this->username 	=	is_null($user)?$this->username:$user;
 		$this->password 	=	is_null($password)?$this->password:$password;
-		$this->port 		=	is_null($port)?$this->port:$port;
+		$this->port 		=	is_null($port)?':'.$this->port:':'.$port;
 		$this->ssl 			=	is_null($ssl)?$this->ssl:$ssl;
 		$this->novalidate 	=	is_null($novalidate)?$this->novalidate:$novalidate;
 

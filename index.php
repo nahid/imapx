@@ -1,8 +1,14 @@
 <?php
     require_once "src/imapxPHP.php";
 
-    $imap=new Imapx;
+    $imap=new Imapx();
 
-    $msg=$imap->readMail(7);
-    echo $msg->getSenderLink();
+    $inbox=$imap->getInbox(1);
+
+//var_dump($inbox);
+    foreach ($inbox as $key => $mail) {
+    	if(isset($mail->subject)){
+    		echo $mail->subject.'<br/>';
+    	}
+    }
  ?>
