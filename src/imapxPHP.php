@@ -1,259 +1,280 @@
 <?php
 /*
-	This file is written with pure PHP code. so you can use it anywhere in your php project.
+    This file is written with pure PHP code. so you can use it anywhere in your php project.
 
 */
 class Imapx
 {
-	/*
-		Here is all configurations that used in the library
-	*/
-	private $driver			=	'imap';  // here is the driver. you can use pop3 also
-	private $hostname		=	'imap.gmail.com'; // here is your host name, 
-	private $username		=	'name@gmail.com'; // your server username ex: john@gmail.com
-	private $password		=	'your_pass';
-	private $port 			=   993;
-	private $ssl			=	true; // If you use false then the server ignore ssl
-	private $novalidate		=	false; // If novalidate true then your server use own validate certificate
-	/*
-		end configurations
-	*/
+    /*
+        Here is all configurations that used in the library
+    */
+    private $driver = 'imap';  // here is the driver. you can use pop3 also
+    private $hostname = 'imap.gmail.com'; // here is your host name,
+    private $username = 'name@gmail.com'; // your server username ex: john@gmail.com
+    private $password = 'your_pass';
+    private $port = 993;
+    private $ssl = true; // If you use false then the server ignore ssl
+    private $novalidate = false; // If novalidate true then your server use own validate certificate
+    /*
+        end configurations
+    */
 
+    protected $isConnect = false;
+    protected $stream = '';
+    protected $emails = '';
+    protected $inbox = [];
+    protected $msgId = 0;
 
-
-
-	protected $isConnect		= 	false;
-	protected $stream			= 	'';
-	protected $emails			=	'';
-	protected $inbox			=	array();
-	protected $msgId			=	0;
-
-	protected $sortBy = [
+    protected $sortBy = [
                         'order' => [
-                        	'asc' 	=> 0,
-                            'desc' 	=> 1
+                            'asc'     => 0,
+                            'desc'    => 1,
                              ],
 
                         'by'    => [
-                        	'date' 		=> SORTDATE,
-                            'arrival' 	=> SORTARRIVAL,
-                            'from' 		=> SORTFROM,
-                            'subject' 	=> SORTSUBJECT,
-                            'size'		=> SORTSIZE
-                                                ]
+                            'date'        => SORTDATE,
+                            'arrival'     => SORTARRIVAL,
+                            'from'        => SORTFROM,
+                            'subject'     => SORTSUBJECT,
+                            'size'        => SORTSIZE,
+                                                ],
                         ];
 
+    public function __construct()
+    {
+        $this->connect();
+    }
 
-	function __construct()
-	{
-		
+    /*
+    * connect to mail server using there credentials
+    */
+    public function connect($host = null, $driver = null, $user = null, $password = null, $port = null, $ssl = null, $novalidate = null)
+    {
+        $this->hostname = is_null($host) ? $this->hostname : $host;
+        $this->driver = is_null($driver) ? $this->driver : $driver;
+        $this->username = is_null($user) ? $this->username : $user;
+        $this->password = is_null($password) ? $this->password : $password;
+        $this->port = is_null($port) ? ':'.$this->port : ':'.$port;
+        $this->ssl = is_null($ssl) ? $this->ssl : $ssl;
+        $this->novalidate = is_null($novalidate) ? $this->novalidate : $novalidate;
 
-			$this->connect();
+        $this->ssl = $this->ssl ? '/ssl' : '';
+        $this->novalidate = $this->novalidate ? '/novalidate-cert' : '';
 
-	}
+        $this->stream = imap_open('{'.$this->hostname.$this->port.'/'.$this->driver.$this->ssl.$this->novalidate.'}INBOX', $this->username, $this->password) or die('Cannot connect to Server: '.imap_last_error());
 
+        if ($this->stream) {
+            $this->isConnect = true;
+        }
+    }
 
-	/*
-	* connect to mail server using there credentials
-	*/
-	function connect($host=null, $driver=null, $user=null, $password=null, $port=null, $ssl=null, $novalidate=null)
-	{
-		$this->hostname 	=	is_null($host)?$this->hostname:$host;
-		$this->driver 		=	is_null($driver)?$this->driver:$driver;
-		$this->username 	=	is_null($user)?$this->username:$user;
-		$this->password 	=	is_null($password)?$this->password:$password;
-		$this->port 		=	is_null($port)?':'.$this->port:':'.$port;
-		$this->ssl 			=	is_null($ssl)?$this->ssl:$ssl;
-		$this->novalidate 	=	is_null($novalidate)?$this->novalidate:$novalidate;
+    /*
+    * close the current connection
+    */
+    public function close()
+    {
+        if (!$this->isConnect) {
+            return false;
+        }
+        imap_close($this->stream);
+    }
 
-		$this->ssl 			=	$this->ssl?'/ssl':'';
-		$this->novalidate 	=	$this->novalidate?'/novalidate-cert':'';
+    public function totalEmail()
+    {
+        if (!$this->isConnect) {
+            return false;
+        }
 
+        return imap_num_msg($this->stream);
+    }
 
-		$this->stream=imap_open('{'.$this->hostname.$this->port.'/'.$this->driver.$this->ssl.$this->novalidate.'}INBOX',$this->username,$this->password) or die('Cannot connect to Server: ' . imap_last_error());
+    public function getInbox($page = 1, $perPage = 25, $sort = null)
+    {
+        if (!$this->isConnect) {
+            return false;
+        }
 
+        $start = $page == 1 ? 0 : (($page * $perPage) - ($perPage - 1));
+        $order = 0;
+        $by = SORTDATE;
 
-		if($this->stream)
-			$this->isConnect = true;
-	}
+        if (is_array($sort)) {
+            $order = $this->sortBy['order'][$sort[0]];
+            $by = $this->sortBy['by'][$sort[1]];
+        }
 
-	/*
-	* close the current connection
-	*/
-	function close()
-	{
-		if(!$this->isConnect) return false;
-		imap_close($this->stream);
-	}
+        $sorted = imap_sort($this->stream, $by, $order);
+        $mails = array_chunk($sorted, $perPage);
+        $mails = $mails[$page - 1];
 
-	public function totalEmail()
-	{
-		if(!$this->isConnect) return false;
+        $mbox = imap_check($this->stream);
+        $inbox = imap_fetch_overview($this->stream, implode($mails, ','), 0);
 
-		return imap_num_msg($this->stream);
-	}
+        if (!is_array($inbox)) {
+            return false;
+        }
 
-	public function getInbox($page=1, $perPage=25, $sort=null)
-	{
-		if(!$this->isConnect) return false;
+        if (is_array($inbox)) {
+            $temp_inbox = [];
+            foreach ($inbox as $msg) {
+                $temp_inbox[$msg->msgno] = $msg;
+            }
 
-		$start=$page==1?0:(($page*$perPage)-($perPage-1));
-		$order=0;
-		$by=SORTDATE;
+            foreach ($mails as $msgno) {
+                $this->inbox[$msgno] = $temp_inbox[$msgno];
+            }
+        }
 
-		if(is_array($sort)){
-			$order	= $this->sortBy['order'][$sort[0]];
-			$by	= $this->sortBy['by'][$sort[1]];
-		}
+        return $this->inbox;
+    }
 
-		$sorted=imap_sort($this->stream, $by, $order);
-		$mails = array_chunk($sorted, $perPage);
-		$mails = $mails[$page-1];
+    public function readMail($id = null)
+    {
+        if (!$this->isConnect) {
+            return false;
+        }
 
-		$mbox = imap_check($this->stream);
-		$inbox = imap_fetch_overview($this->stream, implode($mails,','), 0);
+        if (is_null($id)) {
+            return false;
+        }
 
-		if(!is_array($inbox)) return false;
+        $this->headers = imap_headerinfo($this->stream, $id);
+        $this->msgId = $id;
 
-		if(is_array($inbox)){
-			$temp_inbox=array();
-			foreach($inbox as $msg){
-				$temp_inbox[$msg->msgno]=$msg;
-			}
+        return $this;
+    }
 
-			foreach($mails as $msgno){
-				$this->inbox[$msgno]=$temp_inbox[$msgno];
-			}
-		}
+    public function getDate($pattern = 'Y-m-d')
+    {
+        if (!$this->isConnect) {
+            return false;
+        }
 
-		return $this->inbox;
-	}
+        $date = date($pattern, strtotime($this->headers->date));
 
+        return $date;
+    }
 
-	function readMail($id=null)
-	{
-		if(!$this->isConnect) return false;
+    public function getSubject()
+    {
+        if (!$this->isConnect) {
+            return false;
+        }
 
-		if(is_null($id)) return false;
+        return $this->headers->subject;
+    }
 
-		$this->headers=imap_headerinfo($this->stream, $id);
-		$this->msgId=$id;
+    public function getRecieverEmail()
+    {
+        if (!$this->isConnect) {
+            return false;
+        }
 
-		return $this;
+        return $this->headers->toaddress;
+    }
 
-	}
+    public function getSenderName()
+    {
+        if (!$this->isConnect) {
+            return false;
+        }
 
-	function getDate($pattern='Y-m-d')
-	{
-		if(!$this->isConnect) return false;
+        $name = $this->headers->senderaddress;
 
-		$date =date($pattern, strtotime($this->headers->date));
-		return $date;
-	}
+        return $name;
+    }
 
-	function getSubject()
-	{
-		if(!$this->isConnect) return false;
+    public function getSenderEmail()
+    {
+        if (!$this->isConnect) {
+            return false;
+        }
 
-		return $this->headers->subject;
+        $mailboxName = $this->headers->sender[0]->mailbox;
+        $host = $this->headers->sender[0]->host;
 
-	}
+        return $mailboxName.'@'.$host;
+    }
 
-	function getRecieverEmail()
-	{
-		if(!$this->isConnect) return false;
+    public function getSenderLink($class = 'link')
+    {
+        if (!$this->isConnect) {
+            return false;
+        }
 
-		return $this->headers->toaddress;
-	}
+        $link = '<a href="mailto:'.$this->getSenderEmail().'" class="'.$class.'">'.$this->getSenderName().'</a>';
 
-	function getSenderName()
-	{
-		if(!$this->isConnect) return false;
+        return $link;
+    }
 
-		$name = $this->headers->senderaddress;
-		return $name;
-	}
+    public function isSeen()
+    {
+        if (!$this->isConnect) {
+            return false;
+        }
 
+        $seen = $this->headers->Unseen;
 
-	function getSenderEmail()
-	{
-		if(!$this->isConnect) return false;
+        return $seen == 'U' ? false : true;
+    }
 
-		$mailboxName = $this->headers->sender[0]->mailbox;
-		$host 	=	$this->headers->sender[0]->host;
+    public function isAnswered()
+    {
+        if (!$this->isConnect) {
+            return false;
+        }
 
-		return $mailboxName.'@'.$host;
-	}
+        $answer = $this->headers->Answered;
 
-	function getSenderLink($class='link')
-	{
-		if(!$this->isConnect) return false;
+        return $answer == 'A' ? true : false;
+    }
 
-		$link = '<a href="mailto:'.$this->getSenderEmail().'" class="'.$class.'">'.$this->getSenderName().'</a>';
-		return $link;
-	}
+    public function getSize($unit = 'kb')
+    {
+        if (!$this->isConnect) {
+            return false;
+        }
 
-	function isSeen()
-	{
-		if(!$this->isConnect) return false;
+        $units = [
+                'kb' => 1024,
+                'mb' => 1048576,
+            ];
 
-		$seen=$this->headers->Unseen;
+        $size = $this->headers->Size;
 
-		return $seen=='U'?false:true;
-	}
+        return number_format($size / $units[$unit], 2);
+    }
 
-	function isAnswered()
-	{
-		if(!$this->isConnect) return false;
+    public function getBody($display = 'text', $decode = true)
+    {
+        if (!$this->isConnect) {
+            return false;
+        }
 
-		$answer = $this->headers->Answered;
-		return $answer=='A'?true:false;
-	}
+        $displayAs = [
+            'html' => 2,
+            'text' => 1,
+        ];
 
-	function getSize($unit='kb')
-	{
-		if(!$this->isConnect) return false;
+        if (in_array($displayAs[$display], $displayAs)) {
+            $display = $displayAs[$display];
+        } else {
+            return false;
+        }
 
-		$units=[
-				'kb' => 1024,
-				'mb' => 1048576
-			];
+        $body = '';
 
-		$size = $this->headers->Size;
-		return number_format($size/$units[$unit], 2);
-	}
+        if ($decode) {
+            $body = quoted_printable_decode(imap_fetchbody($this->stream, $this->msgId, $display));
+        } else {
+            $body = imap_fetchbody($this->stream, $this->msgId, $display);
+        }
 
-	function getBody($display='text', $decode=true)
-	{
-		if(!$this->isConnect) return false;
+        return $body;
+    }
 
-		$displayAs=[
-			'html'=>2,
-			'text'=>1
-		];
-
-		if(in_array($displayAs[$display], $displayAs)){
-			$display=$displayAs[$display];
-		}else{
-			return false;
-		}
-
-		$body='';
-
-		if($decode){
-			$body = quoted_printable_decode(imap_fetchbody($this->stream, $this->msgId, $display));
-		}else{
-			$body = imap_fetchbody($this->stream, $this->msgId, $display);
-		}
-
-		return $body;
-	}
-
-	function __destruct()
-	{
-
-		$this->close();
-
-	}
-
+    public function __destruct()
+    {
+        $this->close();
+    }
 }
