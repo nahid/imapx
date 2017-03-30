@@ -10,12 +10,12 @@ namespace Nahidz\Imapx;
 */
 class Imapx
 {
-    private $driver;
-    private $hostname;
-    private $username;
-    private $password;
-    private $ssl;
-    private $novalidate;
+    protected $driver;
+    protected $hostname;
+    protected $username;
+    protected $password;
+    protected $ssl;
+    protected $novalidate;
 
     protected $isConnect = false;
     protected $stream = '';
