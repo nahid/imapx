@@ -8,13 +8,13 @@ class Imapx
     /*
         Here is all configurations that used in the library
     */
-    private $driver = 'imap';  // here is the driver. you can use pop3 also
-    private $hostname = 'imap.gmail.com'; // here is your host name,
-    private $username = 'name@gmail.com'; // your server username ex: john@gmail.com
-    private $password = 'your_pass';
-    private $port = 993;
-    private $ssl = true; // If you use false then the server ignore ssl
-    private $novalidate = false; // If novalidate true then your server use own validate certificate
+    protected $driver = 'imap';  // here is the driver. you can use pop3 also
+    protected $hostname = 'imap.gmail.com'; // here is your host name,
+    protected $username = 'name@gmail.com'; // your server username ex: john@gmail.com
+    protected $password = 'your_pass';
+    protected $port = 993;
+    protected $ssl = true; // If you use false then the server ignore ssl
+    protected $novalidate = false; // If novalidate true then your server use own validate certificate
     /*
         end configurations
     */
